@@ -15,7 +15,7 @@ def _no_sync_tag(name):
       name=f"↻̸{name.title()}",
       slug=f"no-device-type-sync-{slugify(name)}",
       description=f"Device tag to exempt devices and device types from automatic synchronization of {name}",
-      color="ffe4e1"
+      color="ffe4e1",
       content_types=TaggableClassesQuery().as_queryset().filter(app_label='dcim')
   )
 
