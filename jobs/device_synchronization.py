@@ -1,5 +1,5 @@
 # Identify devices which are missing components from the device type definition
-from nautobot.extras.jobs import Job
+from nautobot.extras.jobs import Job, MultiObjectVar
 
 from nautobot.dcim.models import Device, DeviceType, ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, RearPort, FrontPort, DeviceBay
 
