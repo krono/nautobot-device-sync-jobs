@@ -9,21 +9,29 @@ name = "Device Type Synchronization"
 
 
 
-def _no_sync_tag(name):
+def _no_sync_tag(name, create=False):
   from django.utils.text import slugify
-  return Tag.objects.get_or_create(
-      name=f"↻̸{name.title()}",
-      slug=f"no-device-type-sync-{slugify(name)}",
-      description=f"Device tag to exempt devices and device types from automatic synchronization of {name}",
-      color="ffe4e1",
-      content_types=TaggableClassesQuery().as_queryset().filter(app_label='dcim')
-  )
+  args = {
+    'name': f"↻̸{name.title()}",
+    'slug': f"no-device-type-sync-{slugify(name)}",
+    'description': f"Device tag to exempt devices and device types from automatic synchronization of {name}",
+    'color': "ffe4e1",
+    'content_types': TaggableClassesQuery().as_queryset().filter(app_label='dcim')
+  }
+  if create:
+    return Tag.objects.get_or_create(**args)
+  else
+    return Tag.objects.get(**args)
 
+# ensure tags
+for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
+  _no_sync_tag(name, create=True) # for side_effect
 
 class MissingDeviceTypeComponents(Job):
   class Meta:
     name = "Missing Device Type Components"
     description = "Find devices which are missing components that are in the device type template"
+    read_only = True
 
   def test_find_missing(self):
     for device in Device.objects.all():
