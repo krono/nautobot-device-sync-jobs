@@ -20,7 +20,7 @@ def _no_sync_tag(name, create=False):
   }
   if create:
     return Tag.objects.get_or_create(**args)
-  else
+  else:
     return Tag.objects.get(**args)
 
 # ensure tags
