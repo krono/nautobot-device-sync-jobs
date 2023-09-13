@@ -7,7 +7,7 @@ name = "Device Type Synchronization"
 
 
 
-def _no_sync_tag(name, create=False):
+def _no_sync_tag(name, create=True):
   from nautobot.extras.utils import TaggableClassesQuery
   from nautobot.extras.models import Tag
   from django.utils.text import slugify
@@ -18,8 +18,7 @@ def _no_sync_tag(name, create=False):
     name=f"↻̸{name.title()}",
     slug=slug,
     description=f"Device tag to exempt devices and device types from automatic synchronization of {name}",
-    color="ffe4e1",
-  }
+    color="ffe4e1")
 
 # ensure tags
 for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
@@ -36,14 +35,14 @@ class MissingDeviceTypeComponents(Job):
       dt = device.device_type
 
       for item, templateitem, anti_tag in [
-        ('consoleports', 'consoleporttemplates', _no_sync_tag('console ports')),
-        ('consoleserverports', 'consoleserverporttemplates', _no_sync_tag('console server ports')),
-        ('powerports', 'powerporttemplates', _no_sync_tag('power ports')),
-        ('poweroutlets', 'poweroutlettemplates', _no_sync_tag('power outlets')),
-        ('interfaces', 'interfacetemplates', _no_sync_tag('interfaces')),
-        ('rearports', 'rearporttemplates', _no_sync_tag('rear ports')),
-        ('frontports', 'frontporttemplates', _no_sync_tag('front ports')),
-        ('devicebays', 'devicebaytemplates', _no_sync_tag('device bays')),
+        ('consoleports', 'consoleporttemplates', _no_sync_tag('console ports', create=False)),
+        ('consoleserverports', 'consoleserverporttemplates', _no_sync_tag('console server ports', create=False)),
+        ('powerports', 'powerporttemplates', _no_sync_tag('power ports', create=False)),
+        ('poweroutlets', 'poweroutlettemplates', _no_sync_tag('power outlets', create=False)),
+        ('interfaces', 'interfacetemplates', _no_sync_tag('interfaces', create=False)),
+        ('rearports', 'rearporttemplates', _no_sync_tag('rear ports', create=False)),
+        ('frontports', 'frontporttemplates', _no_sync_tag('front ports', create=False)),
+        ('devicebays', 'devicebaytemplates', _no_sync_tag('device bays', create=False)),
       ]:
         names = {i.name for i in getattr(device, item).all()}
         templatenames = {i.name for i in getattr(dt, templateitem).all()}
