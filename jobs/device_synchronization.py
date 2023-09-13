@@ -91,7 +91,7 @@ class AddDeviceTypeComponents(Job):
         templates = getattr(dt, templateitem).all()
         items = [
           template.instantiate(device)
-          for templae in templates
+          for template in templates
           if template.name not in names
         ]
         if items:
