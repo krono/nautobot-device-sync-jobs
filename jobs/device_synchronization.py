@@ -18,7 +18,8 @@ def _no_sync_tag(name, create=True):
     name=f"↻̸{name.title()}",
     slug=slug,
     description=f"Device tag to exempt devices and device types from automatic synchronization of {name}",
-    color="ffe4e1")
+    color="ffe4e1",
+    content_types=TaggableClassesQuery().as_queryset().filter(app_label='dcim'))
 
 # ensure tags
 for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
@@ -29,6 +30,7 @@ class MissingDeviceTypeComponents(Job):
     name = "Missing Device Type Components"
     description = "Find devices which are missing components that are in the device type template"
     read_only = True
+    has_sensitive_variables = False
 
   def test_find_missing(self):
     for device in Device.objects.all():
