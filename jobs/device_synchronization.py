@@ -14,12 +14,14 @@ def _no_sync_tag(name, create=True):
   slug = f"no-device-type-sync-{slugify(name)}"
   if not create:
     return Tag.objects.get(slug=slug)
-  return Tag.objects.get_or_create(
+  tag, created = Tag.objects.get_or_create(
     name=f"↻̸{name.title()}",
     slug=slug,
     description=f"Device tag to exempt devices and device types from automatic synchronization of {name}",
-    color="ffe4e1",
-    content_types=TaggableClassesQuery().as_queryset().filter(app_label='dcim'))
+    color="ffe4e1")
+  if created:
+    tag.content_types.add(*TaggableClassesQuery().as_queryset().filter(app_label='dcim'))
+  return tag
 
 # ensure tags
 for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
