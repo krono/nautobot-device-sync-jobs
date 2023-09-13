@@ -96,4 +96,4 @@ class AddDeviceTypeComponents(Job):
         ]
         if items:
           klass.objects.bulk_create(items)
-          self.log_success('%s (%d): created %d %s' % (device.name, device.id, len(items), item))
+          self.log_success(device, f'Created {len(items)} {item}')
