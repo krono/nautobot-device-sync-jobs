@@ -49,6 +49,6 @@ class MissingDeviceTypeComponents(Job):
         missing = templatenames - names
         if missing:
           if anti_tag in dt.tags.union(device.tags.all()):
-            self.log_info(device, f"Missing {item} {sort(missing)!r} (exempted)")
+            self.log_info(device, f"Missing {item} {sorted(missing)!r} (exempted)")
           else:
-            self.log_warning(device, f"Missing {item} {sort(missing)!r}")
+            self.log_warning(device, f"Missing {item} {sorted(missing)!r}")
