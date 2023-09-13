@@ -25,7 +25,7 @@ def _no_sync_tag(name, create=False):
 
 # ensure tags
 for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
-  _no_sync_tag(name, create=True) # for side_effect
+  _no_sync_tag(tag, create=True) # for side_effect
 
 class MissingDeviceTypeComponents(Job):
   class Meta:
