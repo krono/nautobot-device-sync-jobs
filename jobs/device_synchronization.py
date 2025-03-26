@@ -1,5 +1,5 @@
 # Identify devices which are missing components from the device type definition
-from nautobot.extras.jobs import Job, MultiObjectVar
+from nautobot.apps.jobs import Job, MultiObjectVar, register_jobs
 
 from nautobot.dcim.models import Device, DeviceType, ConsolePort, ConsoleServerPort, PowerPort, PowerOutlet, Interface, RearPort, FrontPort, DeviceBay
 
@@ -34,7 +34,7 @@ class MissingDeviceTypeComponents(Job):
     read_only = True
     has_sensitive_variables = False
 
-  def test_find_missing(self):
+  def run(self):
     for device in Device.objects.all():
       dt = device.device_type
 
@@ -53,9 +53,9 @@ class MissingDeviceTypeComponents(Job):
         missing = templatenames - names
         if missing:
           if anti_tag in dt.tags.union(device.tags.all()):
-            self.log_info(device, f'Missing {item} {sorted(missing)!r} (exempted)')
+            self.logger.info(device, f'Missing {item} {sorted(missing)!r} (exempted)')
           else:
-            self.log_warning(device, f'Missing {item} {sorted(missing)!r}')
+            self.logger.warning(device, f'Missing {item} {sorted(missing)!r}')
 
 class AddDeviceTypeComponents(Job):
   class Meta:
@@ -67,8 +67,8 @@ class AddDeviceTypeComponents(Job):
   # device_types = MultiObjectVar(model=DeviceType, required=False, default=[], null_option='None')
   # components = MultiObjectVar(model=Device, required=False, default=[], null_option='None')
 
-  def run(self, data, commit):
-    for device in data['devices']:
+  def run(self, devices):
+    for device in devices:
       dt = device.device_type
 
       # Based on Device.save():
@@ -85,7 +85,7 @@ class AddDeviceTypeComponents(Job):
         (DeviceBay,'devicebays', 'devicebaytemplates', _no_sync_tag('device bays')),
       ]:
         if anti_tag in dt.tags.union(device.tags.all()):
-          self.log_info(device, f'{item} exempted')
+          self.logger.info(device, f'{item} exempted')
           continue
         names = {i.name for i in getattr(device, item).all()}
         templates = getattr(dt, templateitem).all()
@@ -96,4 +96,6 @@ class AddDeviceTypeComponents(Job):
         ]
         if items:
           klass.objects.bulk_create(items)
-          self.log_success(device, f'Created {len(items)} {item}')
+          self.logger.success(device, f'Created {len(items)} {item}')
+
+register_jobs(MissingDeviceTypeComponents, AddDeviceTypeComponents)
