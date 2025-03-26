@@ -76,7 +76,7 @@ class AddDeviceTypeComponents(Job):
       # Note that ordering is important: e.g. PowerPort before PowerOutlet, RearPort before FrontPort
       for klass, name in [
         (ConsolePort, 'console ports'),
-        (ConsoleServerPort 'console server ports'),
+        (ConsoleServerPort, 'console server ports'),
         (PowerPort, 'power ports'),
         (PowerOutlet, 'power outlets'),
         (Interface, 'interfaces'),
