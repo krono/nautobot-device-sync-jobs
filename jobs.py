@@ -10,13 +10,11 @@ name = 'Device Type Synchronization'
 def _no_sync_tag(name, create=True):
   from nautobot.extras.utils import TaggableClassesQuery
   from nautobot.extras.models import Tag
-  from django.utils.text import slugify
-  slug = f'no-device-type-sync-{slugify(name)}'
+  tag_name = f'↻̸{name.title()}'
   if not create:
-    return Tag.objects.get(slug=slug)
+    return Tag.objects.get_by_natural_key(tag_name)
   tag, created = Tag.objects.get_or_create(
-    name=f'↻̸{name.title()}',
-    slug=slug,
+    name=tag_name,
     description=f'Device tag to exempt devices and device types from automatic synchronization of {name}',
     color='ffe4e1')
   if created:
