@@ -36,18 +36,20 @@ class MissingDeviceTypeComponents(Job):
     for device in Device.objects.all():
       dt = device.device_type
 
-      for item, templateitem, anti_tag in [
-        ('consoleports', 'consoleporttemplates', _no_sync_tag('console ports', create=False)),
-        ('consoleserverports', 'consoleserverporttemplates', _no_sync_tag('console server ports', create=False)),
-        ('powerports', 'powerporttemplates', _no_sync_tag('power ports', create=False)),
-        ('poweroutlets', 'poweroutlettemplates', _no_sync_tag('power outlets', create=False)),
-        ('interfaces', 'interfacetemplates', _no_sync_tag('interfaces', create=False)),
-        ('rearports', 'rearporttemplates', _no_sync_tag('rear ports', create=False)),
-        ('frontports', 'frontporttemplates', _no_sync_tag('front ports', create=False)),
-        ('devicebays', 'devicebaytemplates', _no_sync_tag('device bays', create=False)),
-      ]:
+      for name in (
+        'console ports',
+        'console server ports',
+        'power ports',
+        'power outlets',
+        'interfaces',
+        'rear ports',
+        'front ports',
+        'device bays',
+    ):
+        anti_tag = _no_sync_tag(name, create=False)
+        item = name.replace(' ', '_')
         names = {i.name for i in getattr(device, item).all()}
-        templatenames = {i.name for i in getattr(dt, templateitem).all()}
+        templatenames = {i.name for i in getattr(dt, item + '_templates').all()}
         missing = templatenames - names
         if missing:
           if anti_tag in dt.tags.union(device.tags.all()):
@@ -73,20 +75,22 @@ class AddDeviceTypeComponents(Job):
       # "If this is a new Device, instantiate all of the related components per the DeviceType definition""
       # Note that ordering is important: e.g. PowerPort before PowerOutlet, RearPort before FrontPort
       for klass, item, templateitem, anti_tag in [
-        (ConsolePort, 'consoleports', 'consoleporttemplates', _no_sync_tag('console ports')),
-        (ConsoleServerPort, 'consoleserverports', 'consoleserverporttemplates', _no_sync_tag('console server ports')),
-        (PowerPort, 'powerports', 'powerporttemplates', _no_sync_tag('power ports')),
-        (PowerOutlet, 'poweroutlets', 'poweroutlettemplates', _no_sync_tag('power outlets')),
-        (Interface, 'interfaces', 'interfacetemplates', _no_sync_tag('interfaces')),
-        (RearPort, 'rearports', 'rearporttemplates', _no_sync_tag('rear ports')),
-        (FrontPort, 'frontports', 'frontporttemplates', _no_sync_tag('front ports')),
-        (DeviceBay,'devicebays', 'devicebaytemplates', _no_sync_tag('device bays')),
+        (ConsolePort, 'console ports')
+        (ConsoleServerPort 'console server ports')
+        (PowerPort, 'power ports')
+        (PowerOutlet, 'power outlets')
+        (Interface, 'interfaces')
+        (RearPort, 'rear ports')
+        (FrontPort, 'front ports')
+        (DeviceBay, 'device bays')
       ]:
+        anti_tag = _no_sync_tag(name)
+        item = name.replace(' ', '_')
         if anti_tag in dt.tags.union(device.tags.all()):
           self.logger.info(device, f'{item} exempted')
           continue
         names = {i.name for i in getattr(device, item).all()}
-        templates = getattr(dt, templateitem).all()
+        templates = getattr(dt, item + '_template').all()
         items = [
           template.instantiate(device)
           for template in templates
