@@ -45,6 +45,7 @@ class MissingDeviceTypeComponents(Job):
     has_sensitive_variables = False
 
   def run(self):
+    devices = []
     for device in Device.objects.all():
       dt = device.device_type
 
@@ -56,9 +57,11 @@ class MissingDeviceTypeComponents(Job):
         missing = templatenames - names
         if missing:
           if anti_tag in dt.tags.union(device.tags.all()):
-            self.logger.info(device, f'Missing {item} {sorted(missing)!r} (exempted)')
+            self.logger.info(f'Missing {item} {sorted(missing)!r} (exempted)', extra={"object": device})
           else:
-            self.logger.warning(device, f'Missing {item} {sorted(missing)!r}')
+            self.logger.warning(f'Missing {item} {sorted(missing)!r}', extra={"object": device})
+            devices.append(device)
+    return devices
 
 class AddDeviceTypeComponents(Job):
   class Meta:
@@ -81,7 +84,7 @@ class AddDeviceTypeComponents(Job):
         anti_tag = _no_sync_tag(name)
         item = name.replace(' ', '_')
         if anti_tag in dt.tags.union(device.tags.all()):
-          self.logger.info(device, f'{item} exempted')
+          self.logger.info(f'{item} exempted', extra={"object": device})
           continue
         names = {i.name for i in getattr(device, item + 's').all()}
         templates = getattr(dt, item + '_template').all()
@@ -92,6 +95,6 @@ class AddDeviceTypeComponents(Job):
         ]
         if items:
           klass.objects.bulk_create(items)
-          self.logger.success(device, f'Created {len(items)} {item}')
+          self.logger.success(f'Created {len(items)} {item}', extra={"object": device})
 
 register_jobs(MissingDeviceTypeComponents, AddDeviceTypeComponents)
