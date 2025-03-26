@@ -87,7 +87,7 @@ class AddDeviceTypeComponents(Job):
           self.logger.info(f'{item} exempted', extra={"object": device})
           continue
         names = {i.name for i in getattr(device, item + 's').all()}
-        templates = getattr(dt, item + '_template').all()
+        templates = getattr(dt, item + '_templates').all()
         items = [
           template.instantiate(device)
           for template in templates
