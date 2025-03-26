@@ -74,7 +74,7 @@ class AddDeviceTypeComponents(Job):
       # Based on Device.save():
       # "If this is a new Device, instantiate all of the related components per the DeviceType definition""
       # Note that ordering is important: e.g. PowerPort before PowerOutlet, RearPort before FrontPort
-      for klass, item, templateitem, anti_tag in [
+      for klass, name in [
         (ConsolePort, 'console ports'),
         (ConsoleServerPort 'console server ports'),
         (PowerPort, 'power ports'),
