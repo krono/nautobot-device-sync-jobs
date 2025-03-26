@@ -10,7 +10,8 @@ name = 'Device Type Synchronization'
 def _no_sync_tag(name, create=True):
   from nautobot.extras.utils import TaggableClassesQuery
   from nautobot.extras.models import Tag
-  tag_name = f'↻̸{name.title()}'
+  plural_name = nam + 's'
+  tag_name = f'↻̸{plural_name.title()}'
   if not create:
     return Tag.objects.get_by_natural_key(tag_name)
   tag, created = Tag.objects.get_or_create(
@@ -21,8 +22,19 @@ def _no_sync_tag(name, create=True):
     tag.content_types.add(*TaggableClassesQuery().as_queryset().filter(app_label='dcim'))
   return tag
 
+COMPONENTS = {
+    'console port': ConsolePort,
+    'console server port': ConsoleServerPort,
+    'power port': PowerPort,
+    'power outlet': PowerOutlet,
+    'interface': Interface,
+    'rear port': RearPort,
+    'front port': FrontPort,
+    'device bay': DeviceBay,
+}
+
 # ensure tags
-for tag in ('console ports', 'console server ports', 'power ports', 'power outlets', 'interfaces', 'rear ports', 'front ports', 'device bays'):
+for tag in COMPONENTS.keys():
   _no_sync_tag(tag, create=True) # for side_effect
 
 class MissingDeviceTypeComponents(Job):
@@ -36,19 +48,10 @@ class MissingDeviceTypeComponents(Job):
     for device in Device.objects.all():
       dt = device.device_type
 
-      for name in (
-        'console ports',
-        'console server ports',
-        'power ports',
-        'power outlets',
-        'interfaces',
-        'rear ports',
-        'front ports',
-        'device bays',
-    ):
+      for name in COMPONENTS.keys():
         anti_tag = _no_sync_tag(name, create=False)
         item = name.replace(' ', '_')
-        names = {i.name for i in getattr(device, item).all()}
+        names = {i.name for i in getattr(device, item + 's').all()}
         templatenames = {i.name for i in getattr(dt, item + '_templates').all()}
         missing = templatenames - names
         if missing:
@@ -74,22 +77,13 @@ class AddDeviceTypeComponents(Job):
       # Based on Device.save():
       # "If this is a new Device, instantiate all of the related components per the DeviceType definition""
       # Note that ordering is important: e.g. PowerPort before PowerOutlet, RearPort before FrontPort
-      for klass, name in [
-        (ConsolePort, 'console ports'),
-        (ConsoleServerPort, 'console server ports'),
-        (PowerPort, 'power ports'),
-        (PowerOutlet, 'power outlets'),
-        (Interface, 'interfaces'),
-        (RearPort, 'rear ports'),
-        (FrontPort, 'front ports'),
-        (DeviceBay, 'device bays'),
-      ]:
+      for name, klasse in COMPONENTS.items():
         anti_tag = _no_sync_tag(name)
         item = name.replace(' ', '_')
         if anti_tag in dt.tags.union(device.tags.all()):
           self.logger.info(device, f'{item} exempted')
           continue
-        names = {i.name for i in getattr(device, item).all()}
+        names = {i.name for i in getattr(device, item + 's').all()}
         templates = getattr(dt, item + '_template').all()
         items = [
           template.instantiate(device)
