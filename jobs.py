@@ -13,10 +13,10 @@ def _no_sync_tag(name, create=True):
   plural_name = name + 's'
   tag_name = f'↻̸{plural_name.title()}'
   if not create:
-    return Tag.objects.get_by_natural_key(tag_name)
+    return Tag.objects.get(name=tag_name)
   tag, created = Tag.objects.get_or_create(
     name=tag_name,
-    description=f'Device tag to exempt devices and device types from automatic synchronization of {name}',
+    description=f'Device tag to exempt devices and device types from automatic synchronization of {plural_name}',
     color='ffe4e1')
   if created:
     tag.content_types.add(*TaggableClassesQuery().as_queryset().filter(app_label='dcim'))
