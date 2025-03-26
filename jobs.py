@@ -10,7 +10,7 @@ name = 'Device Type Synchronization'
 def _no_sync_tag(name, create=True):
   from nautobot.extras.utils import TaggableClassesQuery
   from nautobot.extras.models import Tag
-  plural_name = nam + 's'
+  plural_name = name + 's'
   tag_name = f'↻̸{plural_name.title()}'
   if not create:
     return Tag.objects.get_by_natural_key(tag_name)
