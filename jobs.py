@@ -80,7 +80,7 @@ class AddDeviceTypeComponents(Job):
       # Based on Device.save():
       # "If this is a new Device, instantiate all of the related components per the DeviceType definition""
       # Note that ordering is important: e.g. PowerPort before PowerOutlet, RearPort before FrontPort
-      for name, klasse in COMPONENTS.items():
+      for name, klass in COMPONENTS.items():
         anti_tag = _no_sync_tag(name)
         item = name.replace(' ', '_')
         if anti_tag in dt.tags.union(device.tags.all()):
